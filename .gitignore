@@ -1,0 +1,12 @@
+target/
+
+.idea/
+*.iml
+*.iws
+*junit*
+.classpath
+.project
+.settings/
+
+
+.DS_Store
