@@ -1,6 +1,11 @@
 # Gerrit SSHD Java Client
 
-[![build](https://github.com/WANdisco/gerrit-sshd-java-client/actions/workflows/main.yaml/badge.svg)](https://github.com/WANdisco/gerrit-sshd-java-client/actions/workflows/main.yaml) ![Coverage](.github/badges/jacoco.svg) ![Branches](.github/badges/branches.svg)
+[![build](https://github.com/WANdisco/gerrit-sshd-java-client/actions/workflows/main.yaml/badge.svg)](https://github.com/WANdisco/gerrit-sshd-java-client/actions/workflows/main.yaml)
+[![Maven Central](https://img.shields.io/maven-central/v/com.wandisco/gerrit-sshd-java-client)](https://repo1.maven.org/maven2/com/wandisco/gerrit-sshd-java-client/maven-metadata.xml)
+[![GitHub](https://img.shields.io/github/license/wandisco/gerrit-sshd-java-client)](./LICENSE)
+![Coverage](.github/badges/jacoco.svg) ![Branches](.github/badges/branches.svg)
+[![GitHub issues](https://img.shields.io/github/issues/wandisco/gerrit-sshd-java-client)](https://github.com/WANdisco/gerrit-sshd-java-client/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/wandisco/gerrit-sshd-java-client)](https://github.com/WANdisco/gerrit-sshd-java-client/pulls)
 
 
 A Java SSH client for use with [Gerrit Code Review Tool](https://www.gerritcodereview.com/)
@@ -16,7 +21,7 @@ Contains command objects and builders for construction and execution of commands
     <dependency>
       <groupId>com.wandisco</groupId>
       <artifactId>gerrit-sshd-java-client</artifactId>
-      <version>0.0.5-SNAPSHOT</version>
+      <version>1.0.0</version>
     </dependency>
   </depenencies>
 ```
