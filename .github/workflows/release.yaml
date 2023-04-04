@@ -1,7 +1,11 @@
 name: Publish Release
 on:
-  release:
-    types: [created]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "The branch to checkout when cutting the release."
+        required: true
+        default: "main"
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -9,6 +13,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
       - uses: actions/setup-java@v3
         with:
             java-version: '8'
@@ -23,7 +29,7 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
       - name: Publish package
-        run: ./mvnw -B release:prepare release:perform -Dbuild.location=github
+        run: ./mvnw -B release:prepare release:perform -Dbuild.location=github 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
