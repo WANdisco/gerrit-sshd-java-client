@@ -45,7 +45,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 class GerritSShSessionCreatorTest extends SshTestBase {
 
@@ -167,8 +167,9 @@ class GerritSShSessionCreatorTest extends SshTestBase {
     }
 
     @Test
-    @DisabledIfSystemProperty(named = "build.location", matches = "github", disabledReason = "Requires local known host file configuration")
+    @DisabledIfEnvironmentVariable(named = "BUILD_LOCATION", matches = "github", disabledReason = "Requires local known host file configuration")
     public void testUseKnownHosts() {
+        System.out.println("RUNNING WHEN SHOULDNT");
         GerritSSHServer actualGerritSSHServer = currentServer;
         GerritSSHServer testServer =
             new GerritSSHServer(actualGerritSSHServer.getHost(), actualGerritSSHServer.getPort(), actualGerritSSHServer.getUsername(),
@@ -180,7 +181,7 @@ class GerritSShSessionCreatorTest extends SshTestBase {
     }
 
     @Test
-    @DisabledIfSystemProperty(named = "build.location", matches = "github", disabledReason = "Requires local known host file configuration")
+    @DisabledIfEnvironmentVariable(named = "BUILD_LOCATION", matches = "github", disabledReason = "Requires local known host file configuration")
     public void testUseKnowHostsAndStrict() {
         GerritSSHServer actualGerritSSHServer = currentServer;
         GerritSSHServer testServer =

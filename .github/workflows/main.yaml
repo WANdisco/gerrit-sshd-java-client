@@ -25,8 +25,9 @@ jobs:
           server-password: MAVEN_PASSWORD
           cache: maven
       - name: Build with Maven
-        run: ./mvnw -B --update-snapshots deploy -Dbuild.location=github
+        run: ./mvnw -B --update-snapshots deploy
         env:
+          BUILD_LOCATION: 'github'
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
 
