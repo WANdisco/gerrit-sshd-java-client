@@ -23,18 +23,6 @@ package com.wandisco.gerrit.client.sshd.model.sshSession;
 import com.wandisco.gerrit.client.sshd.model.exception.SSHAuthenticationException;
 import com.wandisco.gerrit.client.sshd.model.exception.SSHConnectionException;
 import com.wandisco.gerrit.client.sshd.model.exception.SSHSessionException;
-import java.io.File;
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.SocketAddress;
-import java.nio.channels.UnresolvedAddressException;
-import java.nio.file.Path;
-import java.security.KeyPair;
-import java.security.PublicKey;
-import java.time.Duration;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.config.hosts.DefaultConfigFileHostEntryResolver;
 import org.apache.sshd.client.config.hosts.KnownHostEntry;
@@ -48,6 +36,19 @@ import org.apache.sshd.common.RuntimeSshException;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketAddress;
+import java.nio.channels.UnresolvedAddressException;
+import java.nio.file.Path;
+import java.security.KeyPair;
+import java.security.PublicKey;
+import java.time.Duration;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class GerritSShSessionCreator {
 
@@ -126,15 +127,15 @@ public class GerritSShSessionCreator {
      */
     private ClientSession createSession(SshClient client) throws SSHConnectionException {
         client.start();
-
+        Duration timeout= Duration.ofSeconds(connectionTimeoutSeconds);
         try {
             ConnectFuture sshFuture;
             if (!gerritSSHServer.getLoadSSHConfig()) {
-                sshFuture = client.connect(gerritSSHServer.getUsername(), gerritSSHServer.getHost(), gerritSSHServer.getPort());
+                sshFuture = client.connect(gerritSSHServer.getUsername(), gerritSSHServer.getHost(), gerritSSHServer.getPort()).verify(timeout);
             } else {
-                sshFuture = client.connect(gerritSSHServer.getHostConfigEntry());
+                sshFuture = client.connect(gerritSSHServer.getHostConfigEntry()).verify(timeout);
             }
-            boolean connected = sshFuture.await(connectionTimeoutSeconds * 1000L);
+            boolean connected = sshFuture.await(timeout);
             if (!connected) {
                 throw new SSHConnectionException(
                     String.format("Timed out when creating SSH session to '%s:%s', after %s seconds.", gerritSSHServer.getHost(),
@@ -206,8 +207,9 @@ public class GerritSShSessionCreator {
     private void authenticate(ClientSession session) throws SSHAuthenticationException {
 
         try {
+            session.resetAuthTimeout();
             AuthFuture auth = session.auth();
-            auth.verify(Duration.ofSeconds(connectionTimeoutSeconds));
+            auth.verify();
             } catch (IOException io) {
                 logger.error("Error thrown during Session authentication: {}", io.getMessage());
                 throw new SSHAuthenticationException(io.getMessage(), io);
