@@ -1,7 +1,7 @@
 # Gerrit SSHD Java Client
 
 [![build](https://github.com/WANdisco/gerrit-sshd-java-client/actions/workflows/main.yaml/badge.svg)](https://github.com/WANdisco/gerrit-sshd-java-client/actions/workflows/main.yaml)
-[![Maven Central](https://img.shields.io/maven-central/v/com.wandisco/gerrit-sshd-java-client)](https://central.sonatype.com/artifact/com.wandisco/gerrit-sshd-java-client/1.0.0)
+[![Maven Central](https://img.shields.io/maven-central/v/com.wandisco/gerrit-sshd-java-client)](https://central.sonatype.com/artifact/com.wandisco/gerrit-sshd-java-client/1.1.0)
 [![GitHub](https://img.shields.io/github/license/wandisco/gerrit-sshd-java-client)](./LICENSE)
 ![Coverage](.github/badges/jacoco.svg) ![Branches](.github/badges/branches.svg)
 [![GitHub issues](https://img.shields.io/github/issues/wandisco/gerrit-sshd-java-client)](https://github.com/WANdisco/gerrit-sshd-java-client/issues)
@@ -21,7 +21,7 @@ Contains command objects and builders for construction and execution of commands
     <dependency>
       <groupId>com.wandisco</groupId>
       <artifactId>gerrit-sshd-java-client</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0</version>
     </dependency>
   </depenencies>
 ```
