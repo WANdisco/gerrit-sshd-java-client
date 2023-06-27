@@ -20,22 +20,15 @@ package com.wandisco.gerrit.client.sshd.model.sshSession;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Pattern;
 import org.apache.sshd.client.config.hosts.HostConfigEntry;
 import org.apache.sshd.client.config.hosts.HostPatternValue;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.util.*;
+import java.util.regex.Pattern;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class GerritSSHServerTest {
 
@@ -86,7 +79,10 @@ class GerritSSHServerTest {
         assertEquals("localhost", hostConfigEntry.getHost());
         assertEquals("janedoe", hostConfigEntry.getUsername());
         assertNull(hostConfigEntry.getProxyJump());
-        assertTrue(hostConfigEntry.getProperties().isEmpty());
+        Map<String,String> props = hostConfigEntry.getProperties();
+        assertAll(() -> assertEquals(props.get("HostName"),"localhost"),
+                () -> assertEquals(props.get("Port"),"8080"),
+                () -> assertEquals(props.get("User"),"janedoe"));
         assertEquals(8080, hostConfigEntry.getPort());
         Collection<HostPatternValue> patterns = hostConfigEntry.getPatterns();
         assertEquals(1, patterns.size());

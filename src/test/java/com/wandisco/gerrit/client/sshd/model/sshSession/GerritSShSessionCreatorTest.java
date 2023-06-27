@@ -20,32 +20,26 @@ package com.wandisco.gerrit.client.sshd.model.sshSession;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.wandisco.gerrit.client.sshd.model.exception.SSHAuthenticationException;
 import com.wandisco.gerrit.client.sshd.model.exception.SSHSessionException;
 import com.wandisco.gerrit.client.sshd.testutils.SshTestBase;
+import org.apache.sshd.common.util.GenericUtils;
+import org.apache.sshd.server.SshServer;
+import org.apache.sshd.server.config.keys.AuthorizedKeysAuthenticator;
+import org.apache.sshd.server.session.ServerSession;
+import org.apache.sshd.server.shell.UnknownCommandFactory;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
-import org.apache.sshd.common.util.GenericUtils;
-import org.apache.sshd.server.SshServer;
-import org.apache.sshd.server.config.keys.AuthorizedKeysAuthenticator;
-import org.apache.sshd.server.session.ServerSession;
-import org.apache.sshd.server.shell.UnknownCommandFactory;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import java.util.regex.Pattern;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class GerritSShSessionCreatorTest extends SshTestBase {
 
@@ -83,6 +77,11 @@ class GerritSShSessionCreatorTest extends SshTestBase {
             }
         });
         currentServer = getLocalSSHServer(sshd);
+    }
+
+    @AfterEach
+    void clear(){
+        System.clearProperty("org.apache.sshd.config.auth-timeout");
     }
 
     @Test
@@ -169,7 +168,6 @@ class GerritSShSessionCreatorTest extends SshTestBase {
     @Test
     @DisabledIfEnvironmentVariable(named = "BUILD_LOCATION", matches = "github", disabledReason = "Requires local known host file configuration")
     public void testUseKnownHosts() {
-        System.out.println("RUNNING WHEN SHOULDNT");
         GerritSSHServer actualGerritSSHServer = currentServer;
         GerritSSHServer testServer =
             new GerritSSHServer(actualGerritSSHServer.getHost(), actualGerritSSHServer.getPort(), actualGerritSSHServer.getUsername(),
@@ -262,7 +260,7 @@ class GerritSShSessionCreatorTest extends SshTestBase {
     }
 
     @Test
-    public void testTimeout() throws Exception {
+    public void testAuthTimeout() throws Exception {
         sshd.setPublickeyAuthenticator(new AuthorizedKeysAuthenticator(pubkeyLocation) {
             @Override
             public boolean isValidUsername(String username, ServerSession session) {
@@ -274,10 +272,29 @@ class GerritSShSessionCreatorTest extends SshTestBase {
                 return (GenericUtils.isNotEmpty(username) && username.equals(SSH_USERNAME));
             }
         });
+        System.setProperty("org.apache.sshd.config.auth-timeout", "5000");
         GerritSShSessionCreator creator = new GerritSShSessionCreator(currentServer);
         SSHSessionException thrown = assertThrows(SSHSessionException.class, () -> creator.connect());
         assertInstanceOf(SSHAuthenticationException.class,thrown.getCause());
-        assertEquals("DefaultAuthFuture[ssh-connection]: Failed to get operation result within specified timeout: 5000",thrown.getCause().getMessage());
+        Pattern timeoutMatch = Pattern.compile("(^Detected AuthTimeout after \\d+/5000 ms\\.$)");
+        assertTrue(timeoutMatch.matcher(thrown.getCause().getMessage()).matches());
+    }
+
+    @Test
+    public void testAuthTimeoutUpdatedPass() throws Exception {
+        sshd.setPublickeyAuthenticator(new AuthorizedKeysAuthenticator(pubkeyLocation) {
+            @Override
+            public boolean isValidUsername(String username, ServerSession session) {
+                try {
+                    Thread.sleep(Duration.ofSeconds(30).toMillis());
+                } catch (InterruptedException e) {
+                    log.info("Call interrupted as auth cancellation on Timeout");
+                }
+                return (GenericUtils.isNotEmpty(username) && username.equals(SSH_USERNAME));
+            }
+        });
+        GerritSShSessionCreator creator = new GerritSShSessionCreator(currentServer);
+        assertDoesNotThrow( () -> creator.connect());
     }
 
     @Test
