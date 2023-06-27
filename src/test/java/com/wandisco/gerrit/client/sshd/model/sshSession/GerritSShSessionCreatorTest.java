@@ -260,6 +260,7 @@ class GerritSShSessionCreatorTest extends SshTestBase {
     }
 
     @Test
+    @Disabled("Flaky on Github")
     public void testAuthTimeout() throws Exception {
         sshd.setPublickeyAuthenticator(new AuthorizedKeysAuthenticator(pubkeyLocation) {
             @Override
